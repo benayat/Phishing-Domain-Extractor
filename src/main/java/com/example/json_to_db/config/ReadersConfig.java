@@ -12,17 +12,16 @@ import org.springframework.batch.item.json.builder.JsonItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
 public class ReadersConfig {
-    @Qualifier("phishingDatabaseLinksClassPathResource")
+    @Qualifier("phishingDatabaseLinksResource")
     private final FileSystemResource phishingDatabaseLinksClassPathResource;
-    @Qualifier("phistankLinksClassPathResource")
-    private final ClassPathResource phishtankLinksClassPathResource;
+    @Qualifier("phistankLinksResource")
+    private final FileSystemResource phishtankLinksClassPathResource;
 
 
     @Bean

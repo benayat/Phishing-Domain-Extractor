@@ -1,12 +1,10 @@
 package com.example.json_to_db.config;
 
-import com.example.json_to_db.model.ResourceType;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 
@@ -31,23 +29,23 @@ public class ResourceConfig {
     @Value("${phishing.sources.phishtank.json.file_path}")
     private String phishtankLinksJsonFilePath;
 
-    @Bean("phishingDatabaseLinksClassPathResource")
+    @Bean("phishingDatabaseLinksResource")
     public FileSystemResource getPhishingDatabaseLinksClassPathResource() {
-        return getResource(ResourceType.FILE_SYSTEM_RESOURCE, phishingDatabaseLinksUrl, phishingDatabaseLinksTextFilePath);
+        return getResource(phishingDatabaseLinksUrl, phishingDatabaseLinksTextFilePath);
     }
-    @Bean("phishingDatabaseDomainsClassPathResource")
+    @Bean("phishingDatabaseDomainsResource")
     public FileSystemResource getPhishingDatabaseDomainsClassPathResource() {
-        return getResource(ResourceType.FILE_SYSTEM_RESOURCE, phishingDatabaseDomainsUrl, phishingDatabaseDomainsTextFilePath);
+        return getResource(phishingDatabaseDomainsUrl, phishingDatabaseDomainsTextFilePath);
     }
-    @Bean("phistankLinksClassPathResource")
+    @Bean("phistankLinksResource")
     public FileSystemResource getPhishtankLinksClassPathResource() {
-        return getResource(ResourceType.CLASSPATH_RESOURCE, phistankLinksUrl, phishtankLinksJsonFilePath);
+        return getResource(phistankLinksUrl, phishtankLinksJsonFilePath);
     }
 
 
-    private static Resource getResource(ResourceType resourceType, String url, String targetFilePath) {
+    private static FileSystemResource getResource(String url, String targetFilePath) {
         try{
-            Resource resource = resourceType.equals(ResourceType.CLASSPATH_RESOURCE)? new ClassPathResource(targetFilePath): new FileSystemResource(targetFilePath);
+            FileSystemResource resource = new FileSystemResource(targetFilePath);
             if (!resourceExists(resource)) {
                 downloadAndUnzip(url, targetFilePath);
             }
