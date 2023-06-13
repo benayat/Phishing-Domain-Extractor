@@ -1,6 +1,4 @@
-GitHub Copilot: Sure! Here's an updated README file for your project that includes information on how to process the `All-phishing-links.txt` file along with the `verified_online.json` file:
-
-# Phishtank Domain Extractor
+# Phishing Domain Extractor
 
 This project reads data from the `verified_online.json` file and the `All-phishing-links.txt` file, which contain the Phishtank database and reported phishing links, respectively. It extracts the domain name and URL for each entry and writes this data to a MongoDB database as documents of domain name and a list of URLs attached to it.
 
@@ -11,7 +9,7 @@ To install and run this project, you'll need to have Java and Maven installed on
 1. Clone the repository:
 
 ```
-git clone https://github.com/your-username/phishtank-domain-extractor.git
+git clone https://github.com/your-username/phishing-domain-extractor.git
 ```
 
 2. Build the project:
