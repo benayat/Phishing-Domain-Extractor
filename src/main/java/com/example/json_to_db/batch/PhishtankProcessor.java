@@ -11,10 +11,11 @@ public class PhishtankProcessor implements ItemProcessor<PhishtankPhishDetails, 
 
         @Override
         public PhishtankPhishDetailsDto process(@NotNull PhishtankPhishDetails phishtankPhishDetails) {
-                return PhishtankPhishDetailsDto.builder()
+                PhishtankPhishDetailsDto phishtankPhishDetailsDto = PhishtankPhishDetailsDto.builder()
                         .phishId(Integer.parseInt(phishtankPhishDetails.getPhishId()))
-                        .url(phishtankPhishDetails.getUrl())
                         .domain(phishtankPhishDetails.getUrl().split("/")[2])
                         .build();
+                phishtankPhishDetailsDto.addUrl(phishtankPhishDetails.getUrl());
+                return phishtankPhishDetailsDto;
         }
 }

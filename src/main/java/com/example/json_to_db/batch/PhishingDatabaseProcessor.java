@@ -13,10 +13,11 @@ public class PhishingDatabaseProcessor implements ItemProcessor<String, PhishDet
         @Override
         public PhishDetailsDto process(@NotNull String url) {
             try {
-                return PhishDetailsDto.builder()
-                        .url(url)
+                PhishDetailsDto phishDetailsDto = PhishDetailsDto.builder()
                         .domain(url.split("/")[2])
                         .build();
+                phishDetailsDto.addUrl(url);
+                return phishDetailsDto;
             } catch (ArrayIndexOutOfBoundsException e) {
                 log.error("Error processing url: {}", url);
                 return null;

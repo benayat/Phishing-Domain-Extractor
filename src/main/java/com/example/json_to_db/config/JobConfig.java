@@ -16,6 +16,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.data.MongoItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.json.JsonFileItemWriter;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -28,19 +29,34 @@ public class JobConfig {
 
     private final MongoItemWriter<PhishDetailsDto> writer;
     private final JsonItemReader<PhishtankPhishDetails> phishtankPhishDetailsJsonItemReader;
+    private final JsonFileItemWriter<PhishtankPhishDetailsDto> jsonFileItemWriter;
     private final FlatFileItemReader<String> textItemReader;
-    private final PhishtankProcessor processor;
+    private final PhishtankProcessor phishtankProcessor;
     private final PhishingDatabaseProcessor phishingDatabaseProcessor;
 
     @Bean
     public Job importUserJob(JobRepository jobRepository,
-                             JobCompletionNotificationListener listener, @Qualifier("phishtankStep") Step step1, @Qualifier("phishingDatabaseStep") Step step2) {
+                             JobCompletionNotificationListener listener,
+                             @Qualifier("phishtankStep") Step step1,
+                             @Qualifier("phishingDatabaseStep") Step step2,
+                             @Qualifier("jsonToDtoStep") Step step3) {
         return new JobBuilder("importUserJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .listener(listener)
-                .flow(step1)
-                .next(step2)
+                .flow(step3)
+//                .flow(step1)
+//                .next(step2)
                 .end()
+                .build();
+    }
+    @Bean("jsonToDtoStep")
+    public Step jsonToDtoStep(JobRepository jobRepository,
+                              PlatformTransactionManager transactionManager) {
+        return new StepBuilder("jsonToDtoStep", jobRepository)
+                .<PhishtankPhishDetails, PhishtankPhishDetailsDto>chunk(1000, transactionManager)
+                .reader(phishtankPhishDetailsJsonItemReader)
+                .processor(phishtankProcessor)
+                .writer(jsonFileItemWriter)
                 .build();
     }
 
@@ -50,7 +66,7 @@ public class JobConfig {
         return new StepBuilder("phishtankStep", jobRepository)
                 .<PhishtankPhishDetails, PhishtankPhishDetailsDto>chunk(1000, transactionManager)
                 .reader(phishtankPhishDetailsJsonItemReader)
-                .processor(processor)
+                .processor(phishtankProcessor)
                 .writer(writer)
                 .build();
     }

@@ -1,5 +1,6 @@
 package com.example.json_to_db.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,6 +16,7 @@ import java.io.InputStream;
 import java.net.URL;
 
 @Configuration
+@Slf4j
 public class ResourceConfig {
     @Value("${phishing.sources.phishing_database.links.url}")
     private String phishingDatabaseLinksUrl;
@@ -26,8 +28,10 @@ public class ResourceConfig {
     private String phishingDatabaseDomainsTextFilePath;
     @Value("${phishing.sources.phishtank.links.url}")
     private String phistankLinksUrl;
-    @Value("${phishing.sources.phishtank.json.file_path}")
-    private String phishtankLinksJsonFilePath;
+    @Value("${phishing.sources.phishtank.json.initial.file_path}")
+    private String phishtankLinksJsonInitialFilePath;
+    @Value("${phishing.sources.phishtank.json.final.file_path}")
+    private String phishtankLinksFinalJsonFilePath;
 
     @Bean("phishingDatabaseLinksResource")
     public FileSystemResource getPhishingDatabaseLinksClassPathResource() {
@@ -39,7 +43,18 @@ public class ResourceConfig {
     }
     @Bean("phistankLinksResource")
     public FileSystemResource getPhishtankLinksClassPathResource() {
-        return getResource(phistankLinksUrl, phishtankLinksJsonFilePath);
+        return getResource(phistankLinksUrl, phishtankLinksJsonInitialFilePath);
+    }
+    @Bean("phistankFinalJsonResource")
+    public FileSystemResource getPhishtankFinalJsonClassPathResource() {
+        try{
+            FileSystemResource resource = new FileSystemResource(phishtankLinksFinalJsonFilePath);
+            if(!resourceExists(resource)) throw new IOException("File not found");
+            return resource;
+        } catch (IOException e) {
+            log.error("File not found: " + phishtankLinksFinalJsonFilePath);
+        }
+        return null;
     }
 
 

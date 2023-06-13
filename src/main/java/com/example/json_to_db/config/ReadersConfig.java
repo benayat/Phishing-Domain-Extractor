@@ -1,6 +1,7 @@
 package com.example.json_to_db.config;
 
 import com.example.json_to_db.model.PhishtankPhishDetails;
+import com.example.json_to_db.model.dto.PhishtankPhishDetailsDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.item.file.FlatFileItemReader;
@@ -24,10 +25,18 @@ public class ReadersConfig {
     private final FileSystemResource phishtankLinksClassPathResource;
 
 
-    @Bean
+    @Bean("phishtankInitialJsonReader")
     public JsonItemReader<PhishtankPhishDetails> phishtankReader() {
         return new JsonItemReaderBuilder<PhishtankPhishDetails>()
                 .jsonObjectReader(new JacksonJsonObjectReader<>(PhishtankPhishDetails.class))
+                .resource(phishtankLinksClassPathResource)
+                .name("phishDetailsJsonItemReader")
+                .build();
+    }
+    @Bean("phishtankFinalJsonReader")
+    public JsonItemReader<PhishtankPhishDetailsDto> phishtankFinalReader() {
+        return new JsonItemReaderBuilder<PhishtankPhishDetailsDto>()
+                .jsonObjectReader(new JacksonJsonObjectReader<>(PhishtankPhishDetailsDto.class))
                 .resource(phishtankLinksClassPathResource)
                 .name("phishDetailsJsonItemReader")
                 .build();
