@@ -44,6 +44,8 @@ java -jar target/phishing-domain-extractor-1.0.jar
 When you run the project, it will read the `verified_online.json` file and the `All-phishing-links.txt` file, extract the domain name and URL for each entry, and write this data to a MongoDB database.
 
 You can modify the MongoDB connection settings in the `application.properties` file.
+### todo: 
+I plan to add redis for storing all domains and links between chunks, with a redis set(uniquely and alphabetically), to be added later to the persistent db(mongo).
 
 ## Contributing
 
