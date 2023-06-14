@@ -1,5 +1,3 @@
-GitHub Copilot: Sure! Here's an updated README file that includes a section on the use of Spring Batch, using the selected code as reference:
-
 # Phishing Domain Extractor
 
 This project uses Spring Batch to extract domain names and URLs from Phishtank, and phishing.database databases and reported phishing links, and write them to a MongoDB database.
