@@ -57,6 +57,4 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 ## Contact
 
-If you have any questions or comments about this project, please contact the project maintainer at `maintainer@example.com`.
-
-I hope this updated README helps you understand how Spring Batch is used in this project! Let me know if you have any further questions.
+If you have any questions or comments about this project, please contact the project maintainer at `benaya7@gmail.com`.
