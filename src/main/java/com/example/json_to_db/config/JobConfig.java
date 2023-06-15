@@ -1,12 +1,10 @@
 package com.example.json_to_db.config;
 
 
-import com.example.json_to_db.batch.JobCompletionNotificationListener;
-import com.example.json_to_db.batch.PhishingDatabaseProcessor;
-import com.example.json_to_db.batch.PhishtankProcessor;
-import com.example.json_to_db.model.PhishtankPhishDetails;
-import com.example.json_to_db.model.dto.PhishDetailsDto;
-import com.example.json_to_db.model.dto.PhishtankPhishDetailsDto;
+import com.example.json_to_db.batch.*;
+import com.example.json_to_db.model.PhishDetails;
+import com.example.json_to_db.model.dto.redis.Domain;
+import com.example.json_to_db.model.dto.redis.Url;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -14,9 +12,7 @@ import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
-import org.springframework.batch.item.data.MongoItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.json.JsonFileItemWriter;
 import org.springframework.batch.item.json.JsonItemReader;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -27,58 +23,60 @@ import org.springframework.transaction.PlatformTransactionManager;
 @RequiredArgsConstructor
 public class JobConfig {
 
-    private final MongoItemWriter<PhishDetailsDto> writer;
-    private final JsonItemReader<PhishtankPhishDetails> phishtankPhishDetailsJsonItemReader;
-    private final JsonFileItemWriter<PhishtankPhishDetailsDto> jsonFileItemWriter;
+    private final JsonItemReader<PhishDetails> phishDetailsJsonItemReader;
     private final FlatFileItemReader<String> textItemReader;
-    private final PhishtankProcessor phishtankProcessor;
-    private final PhishingDatabaseProcessor phishingDatabaseProcessor;
+    private final RedisReader redisReader;
+    private final RedisToMongoProcessor redisToMongoProcessor;
+    private final StringToURLPojoProcessor stringToURLPojoProcessor;
+    private final PhishDetailsToUrlPojoProcessor phishDetailsToUrlPojoProcessor;
+    private final RedisFinalWriter redisFinalWriter;
+    private final MongoDomainWriter mongoDomainWriter;
+
+
 
     @Bean
     public Job importUserJob(JobRepository jobRepository,
                              JobCompletionNotificationListener listener,
-                             @Qualifier("phishtankStep") Step step1,
-                             @Qualifier("phishingDatabaseStep") Step step2,
-                             @Qualifier("jsonToDtoStep") Step step3) {
+                             @Qualifier("jsonToRedisStep") Step step1,
+                             @Qualifier("textToRedisStep") Step step2,
+                             @Qualifier("redisToMongoStep") Step step3){
         return new JobBuilder("importUserJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .listener(listener)
-                .flow(step3)
-//                .flow(step1)
-//                .next(step2)
+                .flow(step1)
+                .next(step2)
+                .next(step3)
                 .end()
                 .build();
     }
-    @Bean("jsonToDtoStep")
-    public Step jsonToDtoStep(JobRepository jobRepository,
-                              PlatformTransactionManager transactionManager) {
-        return new StepBuilder("jsonToDtoStep", jobRepository)
-                .<PhishtankPhishDetails, PhishtankPhishDetailsDto>chunk(1000, transactionManager)
-                .reader(phishtankPhishDetailsJsonItemReader)
-                .processor(phishtankProcessor)
-                .writer(jsonFileItemWriter)
-                .build();
-    }
-
-    @Bean("phishtankStep")
-    public Step phishtankStep(JobRepository jobRepository,
-                              PlatformTransactionManager transactionManager) {
-        return new StepBuilder("phishtankStep", jobRepository)
-                .<PhishtankPhishDetails, PhishtankPhishDetailsDto>chunk(1000, transactionManager)
-                .reader(phishtankPhishDetailsJsonItemReader)
-                .processor(phishtankProcessor)
-                .writer(writer)
-                .build();
-    }
-
-    @Bean("phishingDatabaseStep")
-    public Step phishingDatabaseStep(JobRepository jobRepository,
-                                     PlatformTransactionManager transactionManager) {
-        return new StepBuilder("phishingDatabaseStep", jobRepository)
-                .<String, PhishDetailsDto>chunk(1000, transactionManager)
+    @Bean("textToRedisStep")
+    public Step textToRedisStep(JobRepository jobRepository,
+                                PlatformTransactionManager transactionManager) {
+        return new StepBuilder("textToRedisStep", jobRepository)
+                .<String, Url>chunk(50000, transactionManager)
                 .reader(textItemReader)
-                .processor(phishingDatabaseProcessor)
-                .writer(writer)
+                .processor(stringToURLPojoProcessor)
+                .writer(redisFinalWriter)
+                .build();
+    }
+    @Bean("jsonToRedisStep")
+    public Step jsonToRedisStep(JobRepository jobRepository,
+                                PlatformTransactionManager transactionManager) {
+        return new StepBuilder("jsonToDomainStep", jobRepository)
+                .<PhishDetails, Url>chunk(50000, transactionManager)
+                .reader(phishDetailsJsonItemReader)
+                .processor(phishDetailsToUrlPojoProcessor)
+                .writer(redisFinalWriter)
+                .build();
+    }
+    @Bean("redisToMongoStep")
+    public Step redisToMongoStep(JobRepository jobRepository,
+                                 PlatformTransactionManager transactionManager) {
+        return new StepBuilder("redisToMongoStep", jobRepository)
+                .<Domain, com.example.json_to_db.model.dto.mongo.Domain>chunk(50000, transactionManager)
+                .reader(redisReader)
+                .processor(redisToMongoProcessor)
+                .writer(mongoDomainWriter)
                 .build();
     }
 }

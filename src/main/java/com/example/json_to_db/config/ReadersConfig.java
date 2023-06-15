@@ -1,5 +1,7 @@
 package com.example.json_to_db.config;
 
+import com.example.json_to_db.batch.RedisReader;
+import com.example.json_to_db.model.PhishDetails;
 import com.example.json_to_db.model.PhishtankPhishDetails;
 import com.example.json_to_db.model.dto.PhishtankPhishDetailsDto;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 @Configuration
 @RequiredArgsConstructor
@@ -23,6 +26,28 @@ public class ReadersConfig {
     private final FileSystemResource phishingDatabaseLinksClassPathResource;
     @Qualifier("phistankLinksResource")
     private final FileSystemResource phishtankLinksClassPathResource;
+    private final StringRedisTemplate stringRedisTemplate;
+
+    @Bean("phishtankSimpleJsonReader")
+    public JsonItemReader<PhishDetails> phishtankSimpleReader() {
+        return new JsonItemReaderBuilder<PhishDetails>()
+                .jsonObjectReader(new JacksonJsonObjectReader<>(PhishDetails.class))
+                .resource(phishtankLinksClassPathResource)
+                .name("phishDetailsJsonItemReader")
+                .build();
+    }
+    @Bean
+    public FlatFileItemReader<String> textItemReader() {
+        return new FlatFileItemReaderBuilder<String>()
+                .name("textItemReader")
+                .resource(phishingDatabaseLinksClassPathResource)
+                .lineMapper(new PassThroughLineMapper())
+                .build();
+    }
+    @Bean
+    public RedisReader redisReader() {
+        return new RedisReader(stringRedisTemplate);
+    }
 
 
     @Bean("phishtankInitialJsonReader")
@@ -42,12 +67,5 @@ public class ReadersConfig {
                 .build();
     }
 
-    @Bean
-    public FlatFileItemReader<String> textItemReader() {
-        return new FlatFileItemReaderBuilder<String>()
-                .name("textItemReader")
-                .resource(phishingDatabaseLinksClassPathResource)
-                .lineMapper(new PassThroughLineMapper())
-                .build();
-    }
+
 }

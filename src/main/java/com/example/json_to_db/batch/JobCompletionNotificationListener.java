@@ -19,7 +19,7 @@ public class JobCompletionNotificationListener implements JobExecutionListener {
     public void afterJob(JobExecution jobExecution) {
         if(jobExecution.getStatus() == BatchStatus.COMPLETED) {
             log.info("!!! JOB FINISHED! Time to verify the results");
-            log.info("the number of objects in collection is: "+ mongoTemplate.count(new Query(), "phishing_collection"));
+            log.info("the number of objects in collection is: "+ mongoTemplate.count(new Query(), "domains"));
         }
     }
 
