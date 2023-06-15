@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>json_to_db</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1</version>
 	<name>json_to_db</name>
 	<description>json_to_db</description>
 	<properties>

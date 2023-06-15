@@ -8,3 +8,5 @@
 - after processing the data I uploaded it to mongo, indexed by domain name.
 - improve redis writes with pipelined writes.
 - results in very fast api calls - up to 200ms, 500K+ domains and 1M+ urls.
+##### 1.0.1 -
+- updated readme.md.
