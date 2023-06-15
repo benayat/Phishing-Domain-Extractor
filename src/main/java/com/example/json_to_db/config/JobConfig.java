@@ -38,7 +38,7 @@ public class JobConfig {
     public Job importUserJob(JobRepository jobRepository,
                              JobCompletionNotificationListener listener,
                              @Qualifier("jsonToRedisStep") Step step1,
-                             @Qualifier("textToRedisStep") Step step2,
+                             @Qualifier("textToRedisPojoStep") Step step2,
                              @Qualifier("redisToMongoStep") Step step3){
         return new JobBuilder("importUserJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
@@ -49,9 +49,9 @@ public class JobConfig {
                 .end()
                 .build();
     }
-    @Bean("textToRedisStep")
-    public Step textToRedisStep(JobRepository jobRepository,
-                                PlatformTransactionManager transactionManager) {
+    @Bean("textToRedisPojoStep")
+    public Step textToRedisPojoStep(JobRepository jobRepository,
+                                    PlatformTransactionManager transactionManager) {
         return new StepBuilder("textToRedisStep", jobRepository)
                 .<String, Url>chunk(50000, transactionManager)
                 .reader(textItemReader)
