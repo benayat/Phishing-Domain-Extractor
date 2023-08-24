@@ -43,7 +43,7 @@ public class JobConfig {
         return new JobBuilder("importUserJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .listener(listener)
-                .flow(step1)
+                .flow(step3)
                 .next(step2)
                 .next(step3)
                 .end()

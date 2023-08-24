@@ -23,16 +23,16 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 @Slf4j
 public class ReadersConfig {
     @Qualifier("phishingDatabaseLinksResource")
-    private final FileSystemResource phishingDatabaseLinksClassPathResource;
+    private final FileSystemResource phishingDatabaseLinksFileSystemResource;
     @Qualifier("phistankLinksResource")
-    private final FileSystemResource phishtankLinksClassPathResource;
+    private final FileSystemResource phishtankLinksFileSystemResource;
     private final StringRedisTemplate stringRedisTemplate;
 
     @Bean("phishtankSimpleJsonReader")
     public JsonItemReader<PhishDetails> phishtankSimpleReader() {
         return new JsonItemReaderBuilder<PhishDetails>()
                 .jsonObjectReader(new JacksonJsonObjectReader<>(PhishDetails.class))
-                .resource(phishtankLinksClassPathResource)
+                .resource(phishtankLinksFileSystemResource)
                 .name("phishDetailsJsonItemReader")
                 .build();
     }
@@ -40,7 +40,7 @@ public class ReadersConfig {
     public FlatFileItemReader<String> textItemReader() {
         return new FlatFileItemReaderBuilder<String>()
                 .name("textItemReader")
-                .resource(phishingDatabaseLinksClassPathResource)
+                .resource(phishingDatabaseLinksFileSystemResource)
                 .lineMapper(new PassThroughLineMapper())
                 .build();
     }
@@ -54,7 +54,7 @@ public class ReadersConfig {
     public JsonItemReader<PhishtankPhishDetails> phishtankReader() {
         return new JsonItemReaderBuilder<PhishtankPhishDetails>()
                 .jsonObjectReader(new JacksonJsonObjectReader<>(PhishtankPhishDetails.class))
-                .resource(phishtankLinksClassPathResource)
+                .resource(phishtankLinksFileSystemResource)
                 .name("phishDetailsJsonItemReader")
                 .build();
     }
@@ -62,7 +62,7 @@ public class ReadersConfig {
     public JsonItemReader<PhishtankPhishDetailsDto> phishtankFinalReader() {
         return new JsonItemReaderBuilder<PhishtankPhishDetailsDto>()
                 .jsonObjectReader(new JacksonJsonObjectReader<>(PhishtankPhishDetailsDto.class))
-                .resource(phishtankLinksClassPathResource)
+                .resource(phishtankLinksFileSystemResource)
                 .name("phishDetailsJsonItemReader")
                 .build();
     }
